@@ -1,0 +1,191 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phonebook
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel="stylesheet" href="/main.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body> -->
+  <div class="container listContainer">
+    <h1 class="my-5">Phonebook</h1>
+    <div class="row">
+      <div class="col">
+        <form id="updateForm">
+          <ul class="list-group contactList">
+            <% contacts.forEach(contact=> { %>
+              <%- include('./partials/contacts', { contact }) %>
+                <% }); %>
+          </ul>
+        </form>
+      </div>
+    </div>
+    <div class="row my-3">
+      <% if (req.url==='/add?' ) { %>
+        <div class="col">
+          <form id="addForm" method="post" action="/add">
+            <div class="row my-3">
+              <div class="mb-3 col">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" name="fullName">
+              </div>
+              <div class="mb-3 col">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+              </div>
+            </div>
+            <div class="mb-3 row my-3 btnsContainer">
+              <div class="col">
+                <button class="btn btn-success btn-block" type="submit">Add</button>
+              </div>
+              <div class="col">
+                <a class="btn btn-danger btn-block " href="<%= refuse() %>" role="button">Reject</a>
+              </div>
+            </div>
+          </form>
+        </div>
+        <% } else { %>
+          <div style="display: none;" id="updFormBlock">
+            <div class="col">
+              <form id="updForm">
+                <div class="row my-3">
+                  <div class="mb-3 col">
+                    <label for="updName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="updName" name="updName">
+                  </div>
+                  <div class="mb-3 col">
+                    <label for="contact" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="contact" name="contact">
+                  </div>
+                </div>
+                <div class="mb-3 row my-3 btnsContainer">
+                  <div class="col">
+                    <button class="btn btn-success btn-block" id="updContactBtn" type="submit">Update</button>
+                  </div>
+                  <div class="col">
+                    <button class="btn btn-danger btn-block" id="deleteContactBtn" type="button">Delete</button>
+                  </div>
+                  <div class="col">
+                    <a class="btn btn-secondary btn-block " href="<%= refuse() %>" role="button">Cancel</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col" id="addBtnBlock">
+            <form method="get" action="/add">
+              <button class="btn btn-primary" id="addBtn">Add Contact</button>
+            </form>
+          </div>
+          <% } %>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $('#updateForm').submit(function (event) {
+
+        event.preventDefault();
+
+        const submitButton = event.originalEvent.submitter;
+
+        const data = {
+          id: submitButton.dataset.id,
+          name: submitButton.dataset.fn,
+          contact: submitButton.dataset.n
+        };
+
+        console.log(data);
+
+        const method = 'GET';
+        const url = `/update?id=${data.id}&name=${data.name}&contact=${data.contact}`;
+
+        console.log(url.includes('/update?'));
+
+        fetch(url, {
+          method,
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Server response:', data);
+            $('#addBtnBlock').css('display', 'none');
+            $('#updFormBlock').css('display', 'block');
+
+            $('#updName').val(data.name);
+            $('#contact').val(data.contact);
+            $('#updContactBtn').attr('data-id', data.id);
+            $('#deleteContactBtn').attr('data-id', data.id);
+
+            const buttons = $('#updateForm').find('button');
+            buttons.prop('disabled', true);
+
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      });
+
+      $('#updForm').submit(function (event) {
+
+        event.preventDefault();
+
+        const submitButton = event.originalEvent.submitter;
+
+        var formData = $(this).serialize();
+
+        console.log(formData);
+
+        const type = 'PUT';
+        const url = `/update/${submitButton.dataset.id}?_method=PUT`;
+
+        console.log(url);
+
+        $.ajax({
+          type,
+          url,
+          data: formData,
+          success: function (response) {
+            console.log('Server response');
+            window.location.href = '/';
+          },
+          error: function (xhr, status, error) {
+            console.log('Error:', error);
+          }
+        });
+      });
+
+      $('#deleteContactBtn').click(function () {
+        console.log(2312312);
+        $.ajax({
+          url: `delete/${$(this).data('id')}?_method=DELETE`,
+          type: 'DELETE',
+          success: function (response) {
+            console.log('Server response');
+            window.location.href = '/';
+          },
+          error: function (xhr, status, error) {
+            console.log('Error:', error);
+          }
+        });
+      });
+
+      $('#updName, #contact').on('input', function () {
+        // Disable the delete button
+        $('#deleteContactBtn').prop('disabled', true);
+      });
+    });
+  </script>
+  <!-- </body>
+
+</html> -->
