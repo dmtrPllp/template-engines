@@ -1,0 +1,33 @@
+.contactList {
+  border: 2px solid black;
+  list-style: none;
+  padding: 20px;
+}
+
+.listContainer {
+  width: 370px;
+}
+
+.contactList>li {
+  margin-top: 5px;
+}
+
+.contactList>li>button {
+  width: 300px;
+}
+
+#addBtn {
+  width: 350px;
+}
+
+.btnsContainer>div>button {
+  width: 100%;
+}
+.btnsContainer>div>a {
+  width: 100%;
+}
+
+li>button:hover {
+  background-color: #0d6efd;
+  color: white;
+}

@@ -1,0 +1,11 @@
+<li>
+    <% if (req.url==='/add?' || req.url.includes('/update?')) { %>
+        <button disabled type="submit">
+            <%= contact.name %> - <%= contact.contact %>
+        </button>
+        <% } else { %>
+            <button type="submit" data-id="<%= contact.id %>" data-fn="<%= contact.name %>" data-n="<%= contact.contact %>">
+                <%= contact.name %> - <%= contact.contact %>
+            </button>
+            <% } %>
+</li>
