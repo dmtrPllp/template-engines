@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/head.ejs') %>
+  <!-- add this in the head section of your HTML -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <body>
+    <%- include('./partials/nav.ejs') %>
+      <h1>Users</h1>
+      <form id="add-user-form">
+        <h2>Add/Edit</h2>
+        <div class="form-info">
+          <label for="firstName">
+            First Name:
+            <input type="text" id="firstName" name="firstName">
+          </label>
+          <label for="lastName">
+            Last Name:
+            <input type="text" id="lastName" name="lastName">
+          </label>
+        </div>
+        <div class="form-text">
+          <label for="email">
+            Email:
+            <input type="email" id="email" name="email">
+          </label>
+        </div>
+        <div class="form-button">
+          <input type="submit" value="Add/Edit"></input>
+        </div>
+      </form>
+      <div id="show-users-block">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Number of Comments</th>
+              <th>Number of Posts</th>
+              <th>Number of Friends</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(function(user) { %>
+              <tr data-id="<%= user.id %>" data-fn="<%= user.firstName %>" data-ln="<%= user.lastName %>"
+                data-em="<%= user.email %>">
+                <td>
+                  <%= user.id %>
+                </td>
+                <td>
+                  <%= user.firstName %>
+                </td>
+                <td>
+                  <%= user.lastName %>
+                </td>
+                <td>
+                  <%= user.email %>
+                </td>
+                <td>
+                  <%= user.comments.length %>
+                </td>
+                <td>
+                  <%= user.posts.length %>
+                </td>
+                <td>
+                  <%= user.friends1.length + user.friends2.length %>
+                </td>
+              </tr>
+              <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <div class="delete">
+        <button id="deleteBtn" class="btn-delete">
+          delete
+        </button>
+      </div>
+      <script>
+        $(document).ready(function () {
+          var selectedUserId = '';
+          $('#show-users-block tbody').on('click', 'tr', function () {
+            if ($(this).hasClass('active')) {
+              $(this).removeClass('active');
+              $(this).addClass('no-active');
+
+              $('#add-user-form')[0].reset();
+              selectedUserId = undefined;
+            } else {
+              $('#show-users-block tbody tr').removeClass('active');
+              $('#show-users-block tbody tr').addClass('no-active');
+
+              $(this).removeClass('no-active');
+              $(this).addClass('active');
+
+              selectedUserId = $(this).data('id');
+              $('#firstName').val($(this).data('fn'));
+              $('#lastName').val($(this).data('ln'));
+              $('#email').val($(this).data('em'));
+            }
+          });
+
+          $('#add-user-form').submit(function (event) {
+            let type = '';
+            let url = '';
+
+            event.preventDefault();
+
+            var formData = $(this).serialize();
+
+            if (!selectedUserId) {
+              type = 'POST';
+              url = '/add-user';
+            } else {
+              type = 'PUT';
+              url = `/edit/${selectedUserId}?_method=PUT`
+            }
+
+            $.ajax({
+              type,
+              url,
+              data: formData,
+              success: function (response) {
+
+                $('#add-user-form')[0].reset();
+
+                window.location.reload();
+              },
+              error: function (xhr, status, error) {
+                console.log('Error:', error);
+              }
+            });
+          });
+
+          $('#deleteBtn').click(function () {
+            $.ajax({
+              url: '/delete/' + selectedUserId || 0,
+              type: 'DELETE',
+              success: function (result) {
+                window.location.reload();
+              },
+              error: function (err) {
+                console.log(err);
+              }
+            });
+          });
+        });
+      </script>
+  </body>
+
+</html>
