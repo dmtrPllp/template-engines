@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id          Int       @id() @default(autoincrement())
+  post        Post?     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postId      Int?      @map("post_id")
+  user        User?     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId      Int?      @map("user_id")
+  commentText String?   @map("comment_text")
+  commentDate DateTime? @map("comment_date")
+
+  @@map("comments")
+}
+
+model Friend {
+  id            Int       @id() @default(autoincrement())
+  user1         User      @relation(name: "user1", fields: [userId1], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId1       Int       @map("user_id_1")
+  user2         User      @relation(name: "user2", fields: [userId2], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId2       Int       @map("user_id_2")
+  frendshipDate DateTime? @map("frendship_date")
+
+  @@map("friends")
+}
+
+model Like {
+  id       Int       @id() @default(autoincrement())
+  post     Post?     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postId   Int?      @map("post_id")
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   Int?      @map("user_id")
+  likeDate DateTime? @map("like_date")
+
+  @@map("likes")
+}
+
+model Message {
+  id          Int       @id() @default(autoincrement())
+  sender      User      @relation(name: "sender", fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  senderId    Int       @map("sender_id")
+  receiver    User      @relation(name: "receiver", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receiverId  Int       @map("receiver_id")
+  messageText String?   @map("message_text")
+  messageDate DateTime? @map("message_date")
+
+  @@map("messages")
+}
+
+model Post {
+  id       Int       @id() @default(autoincrement())
+  user     User?     @relation(fields: [userId], references: [id])
+  userId   Int?      @map("user_id")
+  postText String?   @map("post_text")
+  postDate DateTime? @map("post_date")
+  comments Comment[] 
+  likes    Like[]
+
+  @@map("posts")
+}
+
+model User {
+  id        Int       @id() @default(autoincrement())
+  firstName String?   @map("first_name")
+  lastName  String?   @map("last_name")
+  email     String?
+  comments  Comment[]
+  likes     Like[]
+  posts     Post[]
+  sender    Message[] @relation(name: "sender")
+  receiver  Message[] @relation(name: "receiver")
+  friends1  Friend[]  @relation(name: "user1")
+  friends2  Friend[]  @relation(name: "user2")
+
+  @@map("users")
+}

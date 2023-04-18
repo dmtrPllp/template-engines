@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/head.ejs') %>
+    <!-- add this in the head section of your HTML -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <body>
+        <%- include('./partials/nav.ejs') %>
+            <h1>Users</h1>
+            <form id="add-comment-form">
+                <h2>Add/Edit</h2>
+                <div class="form-info">
+                    <label for="postId">
+                        Post id:
+                        <input type="text" id="postId" name="postId">
+                    </label>
+                    <label for="userId">
+                        User id:
+                        <input type="text" id="userId" name="userId">
+                    </label>
+                </div>
+                <div class="form-text">
+                    <label for="commentText">
+                        Comment text:
+                        <input type="text" id="commentText" name="commentText">
+                    </label>
+                </div>
+                <div class="form-button">
+                    <input type="submit" value="Add/Edit"></input>
+                </div>
+            </form>
+            <div id="show-comment-block">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Post id</th>
+                            <th>User id</th>
+                            <th>Commnet</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% comments.forEach(function(comment) { %>
+                            <tr data-id="<%= comment.id %>" data-ct="<%= comment.commentText%>" data-pi="<%= comment.post.id %>"
+                                data-ui="<%= comment.user.id %>">
+                                <td>
+                                    <%= comment.id %>
+                                </td>
+                                <td>
+                                    <%= comment.post.id %>
+                                </td>
+                                <td>
+                                    <%= comment.user.id %>
+                                </td>
+                                <td>
+                                    <%= comment.commentText %>
+                                </td>
+                                <td>
+                                    <%= comment.commentDate %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="delete">
+                <button id="deleteBtn" class="btn-delete">
+                    delete
+                </button>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    var selectedCommentId = '';
+                    $('#show-comment-block tbody').on('click', 'tr', function () {
+                        if ($(this).hasClass('active')) {
+                            $(this).removeClass('active');
+                            $(this).addClass('no-active');
+
+                            $('#add-comment-form')[0].reset();
+                            selectedCommentId = undefined;
+                        } else {
+                            $('#show-comment-block tbody tr').removeClass('active');
+                            $('#show-comment-block tbody tr').addClass('no-active');
+
+                            $(this).removeClass('no-active');
+                            $(this).addClass('active');
+
+                            selectedCommentId = $(this).data('id');
+                            $('#postId').val($(this).data('pi'));
+                            $('#userId').val($(this).data('ui'));
+                            $('#commentText').val($(this).data('ct'));
+                        }
+                    });
+
+                    $('#add-comment-form').submit(function (event) {
+                        let type = '';
+                        let url = '';
+
+                        event.preventDefault();
+
+                        var formData = $(this).serialize();
+
+                        if (!selectedCommentId) {
+                            type = 'POST';
+                            url = '/comment/create';
+                        } else {
+                            type = 'PUT';
+                            url = `/comment/update/${selectedCommentId}?_method=PUT`
+                        }
+
+                        $.ajax({
+                            type,
+                            url,
+                            data: formData,
+                            success: function (response) {
+
+                                $('#add-comment-form')[0].reset();
+
+                                window.location.reload();
+                            },
+                            error: function (xhr, status, error) {
+                                console.log('Error:', error);
+                            }
+                        });
+                    });
+
+                    $('#deleteBtn').click(function () {
+                        $.ajax({
+                            url: '/delete/' + selectedUserId || 0,
+                            type: 'DELETE',
+                            success: function (result) {
+                                window.location.reload();
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            }
+                        });
+                    });
+                });
+            </script>
+    </body>
+
+</html>
